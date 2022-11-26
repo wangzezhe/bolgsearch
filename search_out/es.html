@@ -1,0 +1,39 @@
+<html>
+<script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js">
+</script>
+
+<body>
+    <input type="text">
+    <button id="search"">搜索</button>
+        <div class=" search_show">
+        </div>
+</body>
+<script>
+    $("input").keyup(function () {
+        search()
+    });
+    document.getElementById('search').onclick = function () {
+        search()
+    }
+    //搜索功能,提交ajax数据到后台
+    function search() {
+        var html = ''
+        var key = $("input").val()
+        var datas = JSON.stringify({ "query": { "bool": { "must": [], "must_not": [], "should": [{ "match": { "title": key } }] } }, "from": 0, "size": 100, "sort": [], "aggs": {} })
+        $.ajax({
+            url: 'http://127.0.0.1:9200/search_engine/_search',
+            data: datas,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+                console.log(data.hits.hits)
+                $.each(data.hits.hits, function (index, value) {
+                    html += "<a href=" + value._source.link[0] + ">" + value._source.title[0] + "</a><br>"
+                });
+                $('.search_show').html(html)
+            },
+        });
+    }
+</script>
+
+</html>
